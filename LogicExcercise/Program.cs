@@ -7,6 +7,8 @@
         if (i % 5 == 0) result += "bar";
         //LogicExcercise 2, dimana jika x habis dibagi 7 akan print "jazz"
         if (i % 7 == 0) result += "jazz";
+        //LogicExcercise 3, dimana jika x habis dibagi 9 akan print "huzz"
+        if (i % 9 == 0) result += "huzz";
 
         Console.Write(result == "" ? i.ToString() : result);
 
