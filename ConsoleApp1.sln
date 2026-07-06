@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicExcercise", "LogicExcercise\LogicExcercise.csproj", "{A67641CF-FE97-455D-B9F8-16876B439CC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRUD-EFCore", "CRUD-EFCore\CRUD-EFCore.csproj", "{538FD306-13A3-4DCD-9D63-76E1B2DA24B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{A67641CF-FE97-455D-B9F8-16876B439CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A67641CF-FE97-455D-B9F8-16876B439CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A67641CF-FE97-455D-B9F8-16876B439CC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{538FD306-13A3-4DCD-9D63-76E1B2DA24B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{538FD306-13A3-4DCD-9D63-76E1B2DA24B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{538FD306-13A3-4DCD-9D63-76E1B2DA24B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{538FD306-13A3-4DCD-9D63-76E1B2DA24B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
