@@ -72,8 +72,9 @@ async Task AssignEquipmentMenu()
 {
     var equipments = await equipmentService.GetAllAsync();
     var employees = await employeeService.GetAllAsync();
+    var checkIsThereAnyEquipmentOrEmployee = !equipments.Any() || !employees.Any();
 
-    if (!equipments.Any() || !employees.Any())
+    if (checkIsThereAnyEquipmentOrEmployee)
     {
         Console.WriteLine("Tambahkan employee dan equipment dulu sebelum assign.");
         return;
