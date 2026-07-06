@@ -31,7 +31,7 @@ namespace CRUDEFCore.Services
         {
             return await _db.Equipments
                 .Include(e => e.Employees)
-                .OrderBy(e => e.Name)
+                .OrderBy(e => e.Id)
                 .ToListAsync();
         }
 
