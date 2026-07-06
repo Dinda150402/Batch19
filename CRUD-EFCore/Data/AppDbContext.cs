@@ -12,5 +12,13 @@ namespace CRUDEFCore.Data
         {
             optionsBuilder.UseSqlite("Data Source=crud.db");
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Equipment>()
+                .HasMany(e => e.Employees)
+                .WithMany(e => e.EquipmentList)
+                .UsingEntity(j => j.ToTable("EquipmentEmployee"));
+        }
     }
 }
