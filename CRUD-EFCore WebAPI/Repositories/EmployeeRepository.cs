@@ -18,7 +18,7 @@ namespace CRUDEFCore.Repositories
             await _db.Employees
                 .Include(e => e.Department)
                 .Include(e => e.EquipmentList)
-                .OrderBy(e => e.Name)
+                .OrderBy(e => e.Id)
                 .ToListAsync();
 
         public async Task<List<Employee>> GetByDepartmentIdAsync(int departmentId) =>

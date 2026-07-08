@@ -20,7 +20,7 @@ namespace CRUDEFCore.Repositories
                 .Include(e => e.Employees)
                 .Include(e => e.RequiredDepartment)
                 .Include(e => e.MaintenanceLogs)
-                .OrderBy(e => e.Name)
+                .OrderBy(e => e.Id)
                 .ToListAsync();
 
         public async Task<List<Equipment>> SearchByNameAsync(string keyword) =>
