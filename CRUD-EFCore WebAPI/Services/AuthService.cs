@@ -92,7 +92,7 @@ namespace CRUDEFCore.Services
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"] ?? "60")),
+                expires: DateTime.Now.AddHours(double.Parse(_config["Jwt:ExpiresInDays"] ?? "24")),
                 signingCredentials: creds
             );
 
