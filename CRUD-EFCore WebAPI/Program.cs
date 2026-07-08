@@ -101,7 +101,11 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CRUD EF Core API v1");
+        c.RoutePrefix = string.Empty;
+    });
 }
 
 app.UseAuthentication();
