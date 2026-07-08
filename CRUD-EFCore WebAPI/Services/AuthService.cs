@@ -44,8 +44,6 @@ namespace CRUDEFCore.Services
 
             var user = new ApplicationUser { UserName = dto.Username };
 
-            // UserManager.CreateAsync otomatis hash password (pakai PasswordHasher bawaan Identity)
-            // dan mengecek aturan password (RequireDigit, RequireUppercase, dll - dikonfigurasi di Program.cs)
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 return ServiceResult.Fail("Registrasi gagal.", result.Errors.Select(e => e.Description).ToList());
@@ -82,12 +80,10 @@ namespace CRUDEFCore.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName ?? ""),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id) // user.Id sudah string (default key IdentityUser)
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id) 
             };
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            // Pola sama seperti trainer: pakai ?? fallback, bukan throw, supaya app tetap jalan
-            // walau appsettings.json belum ke-setup sempurna (misal pas demo cepat)
             var jwtKey = _config["Jwt:Key"] ?? "FallbackDevKey_MinimumLength32Characters_ForBootcamp!";
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
