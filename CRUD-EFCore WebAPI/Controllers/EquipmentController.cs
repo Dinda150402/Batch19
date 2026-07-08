@@ -50,6 +50,7 @@ namespace CRUDEFCore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] EquipmentCreateDto dto)
         {
             var result = await _service.CreateEquipmentAsync(dto);
@@ -58,6 +59,7 @@ namespace CRUDEFCore.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] EquipmentUpdateDto dto)
         {
             var result = await _service.UpdateEquipmentAsync(id, dto);
@@ -73,6 +75,7 @@ namespace CRUDEFCore.Controllers
         }
 
         [HttpPost("assign")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Assign([FromBody] AssignDto dto)
         {
             var result = await _service.AssignEquipmentToEmployeeAsync(dto.EquipmentId, dto.EmployeeId);

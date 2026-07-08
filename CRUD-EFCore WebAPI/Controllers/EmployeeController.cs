@@ -42,6 +42,7 @@ namespace CRUDEFCore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] EmployeeCreateDto dto)
         {
             var result = await _service.CreateEmployeeAsync(dto);
