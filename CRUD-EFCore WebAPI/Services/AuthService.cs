@@ -7,25 +7,26 @@ using FluentValidation;
 using CRUDEFCore.Common;
 using CRUDEFCore.DTOs;
 using CRUDEFCore.Models;
-using CRUDEFCore.Repositories;
 
 namespace CRUDEFCore.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IUserRepository _userRepo;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _config;
         private readonly IValidator<RegisterDto> _registerValidator;
         private readonly IValidator<LoginDto> _loginValidator;
-        private readonly PasswordHasher<User> _passwordHasher = new();
 
         public AuthService(
-            IUserRepository userRepo,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             IConfiguration config,
             IValidator<RegisterDto> registerValidator,
             IValidator<LoginDto> loginValidator)
         {
-            _userRepo = userRepo;
+            _userManager = userManager;
+            _roleManager = roleManager;
             _config = config;
             _registerValidator = registerValidator;
             _loginValidator = loginValidator;
@@ -37,15 +38,22 @@ namespace CRUDEFCore.Services
             if (!validation.IsValid)
                 return ServiceResult.Fail("Validasi gagal.", validation.Errors.Select(e => e.ErrorMessage).ToList());
 
-            var existing = await _userRepo.GetByUsernameAsync(dto.Username);
+            var existing = await _userManager.FindByNameAsync(dto.Username);
             if (existing != null)
                 return ServiceResult.Fail("Username sudah dipakai.");
 
-            var user = new User { Username = dto.Username, Role = dto.Role };
-            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+            var user = new ApplicationUser { UserName = dto.Username };
 
-            await _userRepo.AddAsync(user);
-            await _userRepo.SaveChangesAsync();
+            // UserManager.CreateAsync otomatis hash password (pakai PasswordHasher bawaan Identity)
+            // dan mengecek aturan password (RequireDigit, RequireUppercase, dll - dikonfigurasi di Program.cs)
+            var result = await _userManager.CreateAsync(user, dto.Password);
+            if (!result.Succeeded)
+                return ServiceResult.Fail("Registrasi gagal.", result.Errors.Select(e => e.Description).ToList());
+
+            if (!await _roleManager.RoleExistsAsync(dto.Role))
+                await _roleManager.CreateAsync(new IdentityRole(dto.Role));
+
+            await _userManager.AddToRoleAsync(user, dto.Role);
 
             return ServiceResult.Ok("Registrasi berhasil.");
         }
@@ -56,35 +64,39 @@ namespace CRUDEFCore.Services
             if (!validation.IsValid)
                 return ServiceResult<string>.Fail("Validasi gagal.", validation.Errors.Select(e => e.ErrorMessage).ToList());
 
-            var user = await _userRepo.GetByUsernameAsync(dto.Username);
+            var user = await _userManager.FindByNameAsync(dto.Username);
             if (user == null)
                 return ServiceResult<string>.Fail("Username atau password salah.");
 
-            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
-            if (result == PasswordVerificationResult.Failed)
+            bool passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+            if (!passwordValid)
                 return ServiceResult<string>.Fail("Username atau password salah.");
 
-            string token = GenerateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            string token = GenerateJwtToken(user, roles);
             return ServiceResult<string>.Ok(token, "Login berhasil.");
         }
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(ApplicationUser user, IList<string> roles)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id) // user.Id sudah string (default key IdentityUser)
             };
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            // Pola sama seperti trainer: pakai ?? fallback, bukan throw, supaya app tetap jalan
+            // walau appsettings.json belum ke-setup sempurna (misal pas demo cepat)
+            var jwtKey = _config["Jwt:Key"] ?? "FallbackDevKey_MinimumLength32Characters_ForBootcamp!";
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"]!)),
+                expires: DateTime.Now.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"] ?? "60")),
                 signingCredentials: creds
             );
 
