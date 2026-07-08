@@ -4,7 +4,6 @@ namespace CRUDEFCore.Models
     {
         public int Id { get; set; }
 
-        // FK ke Equipment (many-to-one: banyak log -> 1 Equipment)
         public int EquipmentId { get; set; }
         public Equipment Equipment { get; set; } = null!;
 
@@ -12,7 +11,6 @@ namespace CRUDEFCore.Models
         public string PerformedBy { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
 
-        // "Passed", "Failed", "NeedsFollowUp"
         public string Result { get; set; } = string.Empty;
     }
 }

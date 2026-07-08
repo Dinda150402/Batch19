@@ -1,6 +1,5 @@
 namespace CRUDEFCore.Common
 {
-    // Dipakai untuk operasi yang tidak mengembalikan data (Update, Delete, Assign, Register)
     public class ServiceResult
     {
         public bool Success { get; set; }
@@ -14,7 +13,6 @@ namespace CRUDEFCore.Common
             new() { Success = false, Message = message, Errors = errors ?? new List<string> { message } };
     }
 
-    // Dipakai untuk operasi yang mengembalikan data (Get, Create, Login)
     public class ServiceResult<T> : ServiceResult
     {
         public T? Data { get; set; }
